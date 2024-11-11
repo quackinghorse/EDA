@@ -1,0 +1,699 @@
+// Test Bench for AND Gate(3 code all on testbench)
+module andGate;
+    reg x;       // Input x
+    reg y;       // Input y
+    wire z;      // Output z
+
+    // Instantiate the AND gate module
+    andComp uut (
+        .x(x), 
+        .y(y), 
+        .z(z)
+    );
+
+    // Apply input stimulus
+    initial begin
+        // Initialize Inputs
+        x = 0;
+        y = 0;
+        
+        #20 x = 1;  
+        #20 y = 1;   
+        #20 x = 0;   
+        #20 x = 1; 
+        #40;
+    end
+  // Display header and monitor inputs/outputs
+    initial begin
+        $display("INPUT\tOUTPUT");
+        $monitor("x = %b, y = %b, z = %b", x, y, z); // Use %b for binary output
+    end
+endmodule
+
+// AND Gate Design
+module andComp(
+    input x,
+    input y,
+    output z
+);
+    assign z = x & y;  // Perform AND operation on inputs x and y
+endmodule
+
+
+
+//2) Test Bench for not gate (all on testbench)
+module and_not;
+    reg a, b;     // reg without size means 1-bit registers for inputs
+    wire tmp, z;  // wire for temporary storage and output
+
+    // Instantiate NOT gate
+    not my_not(tmp, b);
+    
+    // Instantiate AND gate
+    and my_and(z, a, tmp);
+
+    // Apply inputs and display results
+    initial begin
+        a = 1; b = 1;   // Set initial values for inputs a and b
+        #5              // Wait for 5 time units
+        $display("a=%b b=%b z=%b", a, b, z); // Display the values of a, b, and z
+        $finish;        // End the simulation
+    end
+endmodule
+
+
+//3) NOR Gate Testbench (all on testbench)
+module norGate;
+    reg x;     // Input x
+    reg y;     // Input y
+    wire z;    // Output z
+
+    // Instantiate the NOR gate module
+    norComp uut (
+        .x(x), 
+        .y(y), 
+        .z(z)
+    );
+
+    // Apply input stimulus
+    initial begin
+        // Initialize Inputs
+        x = 0;
+        y = 0;
+        
+        #20 x = 1;   // After 20 time units, set x = 1
+        #20 y = 1;   // After another 20 time units, set y = 1
+        #20 x = 0;   // After another 20 time units, set x = 0
+        // #20 x = 1; // Uncomment if additional simulation needed
+        // #40;       // Uncomment if additional delay needed
+    end
+
+    // Display header and monitor inputs/outputs
+    initial begin
+        $display("INPUT\tOUTPUT");
+        $monitor("x = %d, y = %d, z = %d", x, y, z);
+    end
+endmodule
+
+// NOR Gate Logic Design
+module norComp(
+    input x,
+    input y,
+    output z
+);
+    assign z = ~(x | y);  // NOR operation: z = NOT (x OR y)
+endmodule
+
+
+
+
+
+// 4 ) Excess-3 code(all on testwork)
+module BCD2Ex3(A, B, C, D, W, X, Y, Z);
+    input A, B, C, D;
+    output W, X, Y, Z;
+    
+    assign W = A | (B & C) | (B & D);                                  
+    assign X = (~B & C) | (~B & D) | (B & ~C & ~D);
+    assign Y = ~(C ^ D);
+    assign Z = ~D;
+    
+endmodule
+
+module test;
+    wire W, X, Y, Z;
+    reg A, B, C, D;
+    
+    BCD2Ex3 object(A, B, C, D, W, X, Y, Z);
+    
+    initial begin
+        $dumpfile("bcd.vcd");
+        $dumpvars(0, test);
+        $display(" A  B  C  D |  W  X  Y  Z");
+        $monitor(" ", A, "  ", B, "  ", C, "  ", D, " | ", W, "  ", X, "  ", Y, "  ", Z);
+        
+        A = 0; B = 0; C = 0; D = 0;
+        #5  A = 0; B = 0; C = 0; D = 0;
+        #5  A = 0; B = 0; C = 0; D = 1;
+        #5  A = 0; B = 0; C = 1; D = 0;
+        #5  A = 0; B = 0; C = 1; D = 1;
+        #5  A = 0; B = 1; C = 0; D = 0;
+        #5  A = 0; B = 1; C = 0; D = 1;
+        #5  A = 0; B = 1; C = 1; D = 0;
+        #5  A = 0; B = 1; C = 1; D = 1;
+        #5  A = 1; B = 0; C = 0; D = 0;
+        #5  A = 1; B = 0; C = 0; D = 1;
+    end
+endmodule
+
+
+//5) MULTIPLEXER
+module mux(s1, s2, a, b, c, d, y);
+    input s1, s2, a, b, c, d;
+    output y;
+    
+    assign y = ~s1 & ~s2 & a | ~s1 & s2 & b | s1 & ~s2 & c | s1 & s2 & d;
+    
+endmodule
+
+module test;
+    reg a, b, c, d, s1, s2;
+    wire y;
+    
+    mux obj(s1, s2, a, b, c, d, y);
+    
+    initial begin
+        //$dumpfile("mux.vcd");
+        //$dumpvars(0, test);
+        
+        $display("S1\t S2\t A \t B \t C \t D |  Y");
+        $monitor("%b \t %b \t %b \t %b \t %b \t %b |  %b", s1, s2, a, b, c, d, y);
+        
+        a = 0; b = 0; c = 0; d = 0; s1 = 0; s2 = 0;
+        
+        #5  a = 0; b = 0; c = 0; d = 0; s1 = 0; s2 = 0;
+        #5  a = 0; b = 0; c = 0; d = 1; s1 = 0; s2 = 1;
+        #5  a = 0; b = 0; c = 1; d = 0; s1 = 1; s2 = 0;
+        #5  a = 0; b = 0; c = 1; d = 1; s1 = 1; s2 = 1;
+        #5  a = 0; b = 1; c = 0; d = 0; s1 = 0; s2 = 0;
+        #5  a = 0; b = 1; c = 0; d = 1; s1 = 0; s2 = 1;
+        #5  a = 0; b = 1; c = 1; d = 0; s1 = 1; s2 = 0;
+        #5  a = 0; b = 1; c = 1; d = 1; s1 = 1; s2 = 0;
+        #5  a = 1; b = 0; c = 0; d = 0; s1 = 0; s2 = 1;
+        #5  a = 1; b = 0; c = 0; d = 1; s1 = 0; s2 = 0;
+        #5  $finish;
+    end
+endmodule
+
+
+//6 half adder 
+//(test bench)
+
+
+//half adder 
+// Save as "halfadder_tb.v"
+module halfadder_tb;
+    reg a, b;
+    wire sum, carry;
+    
+    halfadder add1(a, b, sum, carry);
+    
+    initial begin
+        $monitor("Time = %d: A= %b  B= %b  Sum = %b  Carry = %b\n", $time, a, b, sum, carry);
+        
+        a = 0; b = 0;
+        #1
+        b = 1;
+        #1
+        a = 1;
+        #1
+        b = 0;
+    end
+endmodule
+
+//(design half adder)
+Half Adder Verilog Code:
+//save as “halfadder.v”
+module halfadder(a, b, sum, carry);
+input a, b;
+output sum,carry;
+
+/* Using data flow level */
+assign sum = a ^ b; //sum bit
+assign carry = a & b; //carry bit
+
+/* using gate level*/
+/*
+ xor x1(sum, a, b);
+ and a1(carry, a, b);
+ */
+endmodule
+
+
+// 7 full adder
+//(testbench)
+/* Test bench for Full Adder */
+module main;
+    reg a, b, c;
+    wire sum, carry;
+    
+    // Instantiate Full Adder
+    fulladder add(a, b, c, sum, carry);
+    
+    always @(sum or carry) begin
+        // Open VCD file and dump variables
+        $dumpfile("add.vcd");
+        $dumpvars(0, add);
+        
+        // Display the inputs and outputs
+        $display("Input A= %b B= %b C= %b Sum = %b Carry = %b\n", a, b, c, sum, carry);
+    end
+endmodule
+
+
+//(design)
+/* Full Adder Verilog Code */
+module fulladder(a, b, c, sum, carry);
+    input a, b, c;
+    output sum, carry;
+    
+    // Sum and Carry calculations
+    assign sum = a ^ b ^ c;  // sum bit
+    assign carry = ((a & b) | (b & c) | (a & c));  // carry bit
+endmodule
+
+
+
+
+
+
+
+
+// 8 half subtractor(testbench)
+
+//half subtractor (testbench)
+// Testbench for Half Subtractor
+module half_sub_tb;
+    reg a, b;  // Declare input registers
+    wire D, B; // Declare output wires
+    
+    // Instantiate the half_sub module
+    half_sub hs(a, b, D, B);
+    
+    // Initial block to define stimulus
+    initial begin
+        $monitor("a=%b b=%b, difference=%b, borrow=%b", a, b, D, B);
+        
+        // Apply test cases
+        a = 0; b = 0;  // Test case 1
+        #1;
+        a = 0; b = 1;  // Test case 2
+        #1;
+        a = 1; b = 0;  // Test case 3
+        #1;
+        a = 1; b = 1;  // Test case 4
+    end
+endmodule
+
+//halfsubtractor(design)
+//half subtractor design
+// Half Subtractor Module
+module half_sub(input a, b, output D, B);
+    assign D = a ^ b;  // Difference is the XOR of a and b
+    assign B = ~a & b;  // Borrow is the AND of the inverted a and b
+endmodule
+
+
+
+
+
+
+
+
+//9)   2 to 4 decoder
+
+//(testbench)
+//2 to 4 decoder(testbench)
+// Testbench for Decoder Module
+module testbench;
+    reg a, b, E;  // Declare input registers
+    wire c, d, e, f;  // Declare output wires
+    
+    // Instantiate the decoder module
+    decoder obj(
+        .a(a),
+        .b(b),
+        .E(E),
+        .c(c),
+        .d(d),
+        .e(e),
+        .f(f)
+    );
+    
+    // Initial block to define stimulus
+    initial begin
+        $display("Inputs      |  Outputs");
+        $display("E  a  b  |  c  d  e  f");
+        $monitor("%b  %b  %b  |  %b  %b  %b  %b", E, a, b, c, d, e, f);
+        
+        // Apply test cases
+        E = 0; a = 0; b = 0;  // Test case 1
+        #5 E = 1; a = 0; b = 0;  // Test case 2
+        #5 E = 1; a = 0; b = 1;  // Test case 3
+        #5 E = 1; a = 1; b = 0;  // Test case 4
+        #5 E = 1; a = 1; b = 1;  // Test case 5
+        #5 $finish;
+    end
+endmodule
+// 2 to 4 decoder (design)
+// Decoder Module
+module decoder(input a, b, E, output c, d, e, f);
+    assign c = E & a & b;
+    assign d = E & a & (~b);
+    assign e = E & (~a) & b;
+    assign f = E & (~a) & (~b);
+endmodule
+
+
+
+
+
+
+
+
+
+//10)   4 to 2 encoder 
+
+// Testbench for Encoder Module
+module test;
+    reg a, b, c, d;   // Declare input registers
+    wire p, q;         // Declare output wires
+    
+    // Instantiate the encoder module
+    encoder obj(a, b, c, d, p, q);
+    
+    // Initial block to apply input test cases
+    initial begin
+        $display("Inputs      |  Outputs");
+        $display("A  B  C  D  |  P  Q");
+        $monitor("%b  %b  %b  %b  |  %b  %b", a, b, c, d, p, q);
+        
+        // Apply test cases
+        a = 0; b = 0; c = 0; d = 1;  // Test case 1
+        #5 a = 0; b = 0; c = 1; d = 0;  // Test case 2
+        #5 a = 0; b = 1; c = 0; d = 0;  // Test case 3
+        #5 a = 1; b = 0; c = 0; d = 0;  // Test case 4
+    end
+endmodule
+// 4 to 2 encoder (design)
+// Encoder Module
+module encoder(input a, b, c, d, output p, q);
+    assign p = a | b;
+    assign q = a | c;
+endmodule
+
+
+
+
+
+
+
+
+
+
+// 11)  D Flip-Flop from NAND gates(Testbench)
+ // Testbench
+    initial begin
+        $monitor("CLK = %b D = %b Q = %b Q_BAR = %b", CLK, D, Q, Q_BAR);
+        
+        // Initialize signals
+        CLK = 0;
+        D = 0;
+        
+        // Apply inputs with delays
+        #3 D = 1;
+        #3 D = 0;
+        #3 $finish;  // End simulation
+    end    
+
+    // Clock signal generation (toggle every 2 time units)
+    always #2 CLK = ~CLK;
+endmodule
+// D Flip-Flop from NAND gates(design)
+module dff_from_nand();
+    wire Q, Q_BAR;
+    reg D, CLK;
+    
+    // NAND gates for D flip-flop
+    nand U1 (X, D, CLK);
+    nand U2 (Y, X, CLK);
+    nand U3 (Q, Q_BAR, X);
+    nand U4 (Q_BAR, Q, Y);
+
+
+//12)  D flip flop with Asynchronous Reset
+// Testbench Module for D flip flop with Asynchronous Reset
+
+// Testbench Module
+module tv_dff;
+    reg d, rstn, clk;
+    wire q;
+    
+    Adff obj(d, rstn, clk, q);
+
+    // Clock signal generation
+    always #10 clk = ~clk;
+
+    initial begin
+        $display("T\treset\tclk\tD\t| q");
+        $monitor("%0t\t%d\t%d\t%d\t| %d", $time, rstn, clk, d, q);
+    end
+    
+    integer i;
+    initial begin
+        clk = 0; 
+        d = 0; 
+        rstn = 0;
+
+        #5 rstn = 1;
+
+        // Generate random values for d
+        repeat(6) begin
+            d = $urandom_range(0, 1);
+            #5;
+        end
+
+        rstn = 0;
+
+        // Reset and generate random values for d again
+        repeat(6) begin
+            d = $urandom_range(0, 1);
+            #5;
+        end
+
+        $finish;
+    end
+endmodule
+// Design Module for D flip flop with Asynchronous Reset
+module Adff(d, rstn, clk, q);
+    input d, rstn, clk;
+    output reg q;
+
+    always @(posedge clk or negedge rstn)
+        if (!rstn)
+            q <= 0;
+        else
+            q <= d;
+endmodule
+
+
+
+
+
+//13)D flip flop with synchronous Reset
+
+
+// Testbench Module for D flip flop with synchronous Reset
+// Testbench Module
+module tv_dff;
+    reg d, rstn, clk;
+    wire q;
+
+    Sdff obj(d, rstn, clk, q);
+
+    // Clock signal generation
+    always #10 clk = ~clk;
+
+    initial begin
+        $display("T\treset\tclk\tD\t| q");
+        $monitor("%0t\t%d\t%d\t%d\t| %d", $time, rstn, clk, d, q);
+    end
+    
+    integer i;
+    initial begin
+        clk = 0; 
+        d = 0; 
+        rstn = 0;
+
+        #5 rstn = 1;
+
+        // Generate random values for d
+        repeat(6) begin
+            d = $urandom_range(0, 1);
+            #5;
+        end
+
+        rstn = 0;
+
+        // Reset and generate random values for d again
+        repeat(6) begin
+            d = $urandom_range(0, 1);
+            #5;
+        end
+
+        $finish;
+    end
+endmodule
+// Design Module for D flip flop with synchronous Reset
+module Sdff(d, rstn, clk, q);
+    input d, rstn, clk;
+    output reg q;
+
+    always @(posedge clk)
+        if (!rstn)
+            q <= 0;
+        else
+            q <= d;
+endmodule
+
+
+
+
+
+
+
+// 14) up counter
+// Testbench for Up Counter
+module upcounter_testbench; 
+    reg clk, reset; 
+    wire [3:0] counter; 
+    integer a;
+
+    up_counter dut(clk, reset, counter); 
+
+    initial begin 
+        clk = 0; 
+        for (a = 0; a < 10; a = a + 1) 
+            #10 clk = ~clk; // Toggle the clock every 10 time units
+    end 
+
+    initial begin 
+        $display("time\tclk\treset\tcounter");
+        $monitor("%0t\t%b\t%b\t%b", $time, clk, reset, counter); 
+        reset = 1; 
+        #20 
+        reset = 0; // Release reset after 20 time units
+    end 
+endmodule
+// Design Module: Up Counter
+module up_counter(input clk, reset, output [3:0] counter); 
+    reg [3:0] counter_up; // up counter 
+
+    always @(posedge clk or posedge reset) 
+    begin
+        if (reset) 
+            counter_up <= 4'd0;    // Reset the counter
+        else 
+            counter_up <= counter_up + 4'd1; // Increment the counter
+    end
+
+    assign counter = counter_up; 
+endmodule
+
+
+
+
+
+
+
+
+//15) up-down counter
+
+// Testbench for Up-Down Counter
+module updowncounter_testbench; 
+    reg clk, reset, up_down;                        
+    wire [3:0] counter; 
+    integer a;
+
+    up_down_counter dut(clk, reset, up_down, counter); 
+
+    initial begin 
+        clk = 0;
+        for (a = 0; a < 10; a = a + 1) 
+            #10 clk = ~clk; // Toggle the clock every 10 time units
+    end 
+
+    initial begin 
+        $display("time\tclk\treset\tup_down\tcounter");
+        $monitor("%0t\t%b\t%b\t%b\t%b", $time, clk, reset, up_down, counter); 
+        reset = 1; 
+        up_down = 0; 
+        #20; // Apply reset for 20 time units
+        reset = 0; 
+        #20; // Wait for 20 time units
+        up_down = 1; // Switch to up counting mode
+    end 
+endmodule 
+// Design Module: Up-Down Counter
+module up_down_counter(input clk, reset, up_down, output [3:0] counter); 
+    reg [3:0] counter_up_down; // Counter for both up and down
+
+    always @(posedge clk or posedge reset) 
+    begin 
+        if (reset) 
+            counter_up_down <= 4'h0; // Reset the counter to 0
+        else if (~up_down) 
+            counter_up_down <= counter_up_down + 4'h1; // Increment counter
+        else 
+            counter_up_down <= counter_up_down - 4'h1; // Decrement counter
+    end 
+
+    assign counter = counter_up_down; 
+endmodule
+
+
+
+
+
+
+
+//16) JK flipflop
+
+
+// Testbench for JK Flip-Flop
+module test;
+    reg [1:0] jk;
+    reg clk, i;
+    wire q, qb;
+    
+    jkff ob(jk, clk, q, qb);
+
+    initial begin
+        $dumpfile("first.vcd");
+        $dumpvars(1, test);
+        $display("time\tclk\tjk1\tjk0\tq\t~q");
+        $monitor("%0t\t%b\t%b\t%b\t%b\t%b", $time, clk, jk[1], jk[0], q, qb);
+        
+        // Test sequence
+        jk = 2'b00; #10;
+        jk = 2'b01; #10;
+        jk = 2'b10; #10;
+        jk = 2'b11; #10;
+        $finish;
+    end
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        for (i = 0; i <= 20; i = i + 1)
+            #5 clk = ~clk;
+    end
+endmodule
+// JK Flip-Flop Module (design)
+module jkff(input [1:0] jk, input clk, output reg q, output reg qb);
+
+    always @(posedge clk) begin
+        case (jk)
+            2'b00: q = q;      // No change
+            2'b01: q = 0;      // Reset
+            2'b10: q = 1;      // Set
+            2'b11: q = ~q;     // Toggle
+        endcase
+        qb = ~q;             // Inverted output
+    end
+endmodule
+
+
+
+
+
